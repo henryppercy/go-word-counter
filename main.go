@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -14,27 +15,6 @@ func main() {
 }
 
 func CountWords(data []byte) int {
-	if len(data) == 0 {
-		return 0
-	}
-
-	wordDetected := false
-
-	wordCount := 0
-
-	for _, x := range data {
-		if x == ' ' {
-			wordCount++
-		} else {
-			wordDetected = true
-		}
-	}
-
-	if !wordDetected {
-		return 0
-	}
-
-	wordCount++
-
-	return wordCount
+	words := strings.Fields(string(data))
+	return len(words)
 }
