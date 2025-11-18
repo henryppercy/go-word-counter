@@ -8,5 +8,16 @@ import (
 func main () {
 	data, _ := os.ReadFile("./words.txt")
 
-	fmt.Println("data:", string(data)) // is a slight performance impact when converting between string and bytes (vica verca), don't go switching back and forth, just as needed
+	wordCount := 0
+	// const spaceChar = 32 // decimal value for space 
+
+	for _, x := range data {
+		if x == ' ' {           // can use rune instead, single quotes to represent a rune
+			wordCount++
+		}
+	}
+
+	wordCount++
+
+	fmt.Println(wordCount)
 }
