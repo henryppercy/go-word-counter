@@ -8,16 +8,21 @@ import (
 func main () {
 	data, _ := os.ReadFile("./words.txt")
 
+	wordCount := countWords(data);
+	
+	fmt.Println(wordCount)
+}
+
+func countWords(data []byte) int {
 	wordCount := 0
-	// const spaceChar = 32 // decimal value for space 
 
 	for _, x := range data {
-		if x == ' ' {           // can use rune instead, single quotes to represent a rune
+		if x == ' ' {
 			wordCount++
 		}
 	}
 
 	wordCount++
 
-	fmt.Println(wordCount)
+	return wordCount
 }
