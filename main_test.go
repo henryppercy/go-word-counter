@@ -1,13 +1,14 @@
 package main_test
 
 import (
+	"strings"
 	"testing"
 
 	counter "github.com/henryppercy/counter"
 )
 
 func TestCountWords(t *testing.T) {
-	testCases := []struct { // anonymous struct
+	testCases := []struct {
 		name  string
 		input string
 		wants int
@@ -56,7 +57,7 @@ func TestCountWords(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			gives := counter.CountWords([]byte(tc.input))
+			gives := counter.CountWords(strings.NewReader(tc.input))
 
 			if gives != tc.wants {
 				t.Logf("expected: %d got: %d", tc.wants, gives)
