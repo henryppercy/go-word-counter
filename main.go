@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"unicode"
-	"unicode/utf8"
 )
 
 func main() {
@@ -28,35 +28,19 @@ func CountWordsInFile(file *os.File) int {
 	wordCount := 0
 	isInsideWord := false
 
-	const bufferSize = 1
-	buffer := make([]byte, bufferSize)
-	leftover := []byte{}
+	reader := bufio.NewReader(file)
 
 	for {
-		size, err := file.Read(buffer)
+		r, _, err := reader.ReadRune()
 		if err != nil {
 			break
-		}		
-
-		subBuffer := append(leftover, buffer[:size]...)
-
-		for len(subBuffer) > 0 {
-			r, rsize := utf8.DecodeRune(subBuffer)
-			if r == utf8.RuneError {
-				break
-			}
-
-			subBuffer = subBuffer[rsize:]
-	
-			if !unicode.IsSpace(r) && !isInsideWord {
-				wordCount++
-			}
-	
-			isInsideWord = !unicode.IsSpace(r)
 		}
 
-		leftover = leftover[:0]
-		leftover = append(leftover, subBuffer...)
+		if !unicode.IsSpace(r) && !isInsideWord {
+			wordCount++
+		}
+
+		isInsideWord = !unicode.IsSpace(r)
 	}
 
 	return wordCount
