@@ -9,7 +9,8 @@ import (
 func main() {
 	log.SetFlags(0)
 
-	total := 0
+	totals := Counts{}
+
 	fileNames := os.Args[1:]
 	didError := false
 
@@ -22,18 +23,22 @@ func main() {
 			continue
 		}
 
-		total += counts.Words
+		totals = Counts{
+			Bytes: totals.Bytes + counts.Bytes,
+			Words: totals.Words + counts.Words,
+			Lines: totals.Lines + counts.Lines,
+		}
 
-		fmt.Println(counts.Lines ,counts.Words, counts.Bytes, f)
+		counts.Print(os.Stdout, f)
 	}
 
 	if len(fileNames) == 0 {
 		counts := GetCount(os.Stdin)
-		fmt.Println(counts.Lines ,counts.Words, counts.Bytes)
+		counts.Print(os.Stdout, "")
 	}
 
 	if len(fileNames) > 1 {
-		fmt.Println("total", total)
+		totals.Print(os.Stdout, "total")
 	}
 
 	if didError {

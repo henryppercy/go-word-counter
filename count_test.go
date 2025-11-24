@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 
@@ -69,38 +70,38 @@ func TestCountWords(t *testing.T) {
 }
 
 func TestCountLines(t *testing.T) {
-	testCases := []struct{
+	testCases := []struct {
 		name  string
 		input string
 		wants int
 	}{
 		{
-			name: "simple 5 words, 1 new line",
+			name:  "simple 5 words, 1 new line",
 			input: "one two three four five\n",
 			wants: 1,
 		},
 		{
-			name: "empty file",
+			name:  "empty file",
 			input: "",
 			wants: 0,
 		},
 		{
-			name: "no new lines",
+			name:  "no new lines",
 			input: "one two three four five",
 			wants: 0,
 		},
 		{
-			name: "no new lines at end",
+			name:  "no new lines at end",
 			input: "one two three four five\nsix",
 			wants: 1,
 		},
 		{
-			name: "multi newline input",
+			name:  "multi newline input",
 			input: "\n\n\n\n",
 			wants: 4,
 		},
 		{
-			name: "multi word line string",
+			name:  "multi word line string",
 			input: "one\ntwo\nthree\nfour\nfive\n",
 			wants: 5,
 		},
@@ -120,38 +121,38 @@ func TestCountLines(t *testing.T) {
 }
 
 func TestCountBytes(t *testing.T) {
-	testCases := []struct{
+	testCases := []struct {
 		name  string
 		input string
 		wants int
 	}{
 		{
-			name: "five words",
+			name:  "five words",
 			input: "one two three four five",
 			wants: 23,
 		},
 		{
-			name: "empty file",
+			name:  "empty file",
 			input: "",
 			wants: 0,
 		},
 		{
-			name: "all spaces",
+			name:  "all spaces",
 			input: "       ",
 			wants: 7,
 		},
 		{
-			name: "newlines, tabs, and words",
+			name:  "newlines, tabs, and words",
 			input: "one\ntwo\nthree\nfour\t\n",
 			wants: 20,
 		},
 		{
-			name: "Unicode characters",
+			name:  "Unicode characters",
 			input: "Mañana",
 			wants: 7,
 		},
 		{
-			name: "",
+			name:  "",
 			input: "",
 			wants: 0,
 		},
@@ -171,13 +172,13 @@ func TestCountBytes(t *testing.T) {
 }
 
 func TestGetCounts(t *testing.T) {
-	testCases := []struct{
+	testCases := []struct {
 		name  string
 		input string
 		wants counter.Counts
 	}{
 		{
-			name: "simple five words",
+			name:  "simple five words",
 			input: "one two three four five\n",
 			wants: counter.Counts{
 				Lines: 1,
@@ -194,6 +195,56 @@ func TestGetCounts(t *testing.T) {
 
 			if gives != tc.wants {
 				t.Logf("expected: %d got: %d", tc.wants, gives)
+				t.Fail()
+			}
+		})
+	}
+}
+
+func TestPrintCount(t *testing.T) {
+	type inputs struct {
+		counts   counter.Counts
+		filename string
+	}
+	testCases := []struct {
+		name  string
+		input inputs
+		wants string
+	}{
+		{
+			name: "simple five words",
+			input: inputs{
+				counts: counter.Counts{
+					Lines: 1,
+					Words: 5,
+					Bytes: 24,
+				},
+				filename: "words.txt",
+			},
+			wants: "1 5 24 words.txt\n",
+		},
+		{
+			name: "no file name",
+			input: inputs{
+				counts: counter.Counts{
+					Lines: 1,
+					Words: 4,
+					Bytes: 20,
+				},
+				filename: "",
+			},
+			wants: "1 4 20\n",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			buffer := &bytes.Buffer{}
+
+			tc.input.counts.Print(buffer, tc.input.filename)
+
+			if buffer.String() != tc.wants {
+				t.Logf("expected: %v got: %v", []byte(tc.wants), buffer.Bytes())
 				t.Fail()
 			}
 		})

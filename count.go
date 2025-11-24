@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 )
@@ -10,6 +11,16 @@ type Counts struct {
 	Bytes int
 	Words int
 	Lines int
+}
+
+func (counts Counts) Print(w io.Writer, filename string) {
+	fmt.Fprintf(w, "%d %d %d", counts.Lines, counts.Words, counts.Bytes)
+
+	if filename != "" {
+		fmt.Fprintf(w, " %s", filename)
+	}
+
+	fmt.Fprintf(w, "\n")
 }
 
 func GetCount(f io.ReadSeeker) Counts {
@@ -55,13 +66,13 @@ func CountWords(r io.Reader) int {
 	return wordCount
 }
 
-func CountLines (r io.Reader) int {
+func CountLines(r io.Reader) int {
 	lineCount := 0
 
 	reader := bufio.NewReader(r)
 
 	for {
-		r, _ , err := reader.ReadRune()
+		r, _, err := reader.ReadRune()
 		if err != nil {
 			break
 		}
