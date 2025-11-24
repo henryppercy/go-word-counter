@@ -28,8 +28,8 @@ func main() {
 	}
 
 	if len(fileNames) == 0 {
-		wordCount := CountWords(os.Stdin)
-		fmt.Println(wordCount)
+		counts := GetCount(os.Stdin)
+		fmt.Println(counts.Lines ,counts.Words, counts.Bytes)
 	}
 
 	if len(fileNames) > 1 {
