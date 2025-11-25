@@ -34,7 +34,7 @@ func main() {
 
 	if len(fileNames) == 0 {
 		counts := GetCount(os.Stdin)
-		counts.Print(os.Stdout, "")
+		counts.Print(os.Stdout)
 	}
 
 	if len(fileNames) > 1 {
