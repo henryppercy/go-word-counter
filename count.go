@@ -13,8 +13,15 @@ type Counts struct {
 	Lines int
 }
 
-func (counts Counts) Print(w io.Writer, filenames ...string) {
-	fmt.Fprintf(w, "%d %d %d", counts.Lines, counts.Words, counts.Bytes)
+func (c Counts) Add(other Counts) Counts {
+	c.Lines += other.Lines
+	c.Words += other.Words
+	c.Bytes += other.Bytes
+	return c
+}
+
+func (c Counts) Print(w io.Writer, filenames ...string) {
+	fmt.Fprintf(w, "%d %d %d", c.Lines, c.Words, c.Bytes)
 
 	for _, f := range filenames {
 		fmt.Fprintf(w, " %s", f)	
