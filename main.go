@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -40,10 +41,12 @@ func (d DisplayOptions) ShouldShowLines() bool {
 
 func main() {
 	opts := DisplayOptions{}
+	header := false
 
-	flag.BoolVar(&opts.ShowBytes, "c", false, "Used to toggle whether or not to show the character count")
-	flag.BoolVar(&opts.ShowWords, "w", false, "Used to toggle whether or not to show the word count")
-	flag.BoolVar(&opts.ShowLines, "l", false, "Used to toggle whether or not to show the line count")
+	flag.BoolVar(&header, "header", false, "Show column titles")
+	flag.BoolVar(&opts.ShowBytes, "c", false, "Show the character count")
+	flag.BoolVar(&opts.ShowWords, "w", false, "Show the word count")
+	flag.BoolVar(&opts.ShowLines, "l", false, "Show the line count")
 
 	flag.Parse()
 
@@ -55,6 +58,26 @@ func main() {
 
 	fileNames := flag.Args()
 	didError := false
+
+	if header {
+		headers := []string{}
+
+		if opts.ShouldShowLines() {
+			headers = append(headers, "lines")
+		}
+
+		if opts.ShouldShowWords() {
+			headers = append(headers, "words")
+		}
+
+		if opts.ShouldShowBytes() {
+			headers = append(headers, "bytes")
+		}
+
+		line := strings.Join(headers, "\t") + "\t"
+
+		fmt.Fprintln(wr, line)
+	}
 
 	for _, f := range fileNames {
 		counts, err := CountFile(f)
