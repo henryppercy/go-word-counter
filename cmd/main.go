@@ -7,40 +7,13 @@ import (
 	"os"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/henryppercy/counter/counter"
+	"github.com/henryppercy/counter/display"
 )
 
-type DisplayOptions struct {
-	ShowBytes bool
-	ShowWords bool
-	ShowLines bool
-}
-
-func (d DisplayOptions) ShouldShowBytes() bool {
-	if !d.ShowBytes && !d.ShowWords && !d.ShowLines {
-		return true
-	}
-
-	return d.ShowBytes
-}
-
-func (d DisplayOptions) ShouldShowWords() bool {
-	if !d.ShowBytes && !d.ShowWords && !d.ShowLines {
-		return true
-	}
-
-	return d.ShowWords
-}
-
-func (d DisplayOptions) ShouldShowLines() bool {
-	if !d.ShowBytes && !d.ShowWords && !d.ShowLines {
-		return true
-	}
-
-	return d.ShowLines
-}
-
 func main() {
-	opts := DisplayOptions{}
+	opts := display.Options{}
 	header := false
 
 	flag.BoolVar(&header, "header", false, "Show column titles")
@@ -54,7 +27,7 @@ func main() {
 
 	wr := tabwriter.NewWriter(os.Stdout, 0, 8, 1, ' ', tabwriter.AlignRight)
 
-	totals := Counts{}
+	totals := counter.Counts{}
 
 	fileNames := flag.Args()
 	didError := false
@@ -80,7 +53,7 @@ func main() {
 	}
 
 	for _, f := range fileNames {
-		counts, err := CountFile(f)
+		counts, err := counter.CountFile(f)
 
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "counter:", err)
@@ -94,7 +67,7 @@ func main() {
 	}
 
 	if len(fileNames) == 0 {
-		counts := GetCount(os.Stdin)
+		counts := counter.GetCount(os.Stdin)
 		counts.Print(wr, opts)
 	}
 
