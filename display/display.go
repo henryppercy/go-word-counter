@@ -1,39 +1,41 @@
 package display
 
 type Options struct {
-	showBytes bool
-	showWords bool
-	showLines bool
+	args NewOptionsArgs
 }
 
-func NewOptions(b bool, w bool, l bool) Options {
+type NewOptionsArgs struct {
+	ShowBytes bool
+	ShowWords bool
+	ShowLines bool
+}
+
+func NewOptions(args NewOptionsArgs) Options {
 	return Options{
-		showBytes: b,
-		showWords: w,
-		showLines: l,
+		args: args,
 	}
 }
 
 func (o Options) ShouldShowBytes() bool {
-	if !o.showBytes && !o.showWords && !o.showLines {
+	if !o.args.ShowBytes && !o.args.ShowWords && !o.args.ShowLines {
 		return true
 	}
 
-	return o.showBytes
+	return o.args.ShowBytes
 }
 
 func (o Options) ShouldShowWords() bool {
-	if !o.showBytes && !o.showWords && !o.showLines {
+	if !o.args.ShowBytes && !o.args.ShowWords && !o.args.ShowLines {
 		return true
 	}
 
-	return o.showWords
+	return o.args.ShowWords
 }
 
 func (o Options) ShouldShowLines() bool {
-	if !o.showBytes && !o.showWords && !o.showLines {
+	if !o.args.ShowBytes && !o.args.ShowWords && !o.args.ShowLines {
 		return true
 	}
 
-	return o.showLines
+	return o.args.ShowLines
 }

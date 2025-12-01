@@ -13,20 +13,18 @@ import (
 )
 
 func main() {
-	showBytes := false
-	showWords := false
-	showLines := false
+	args := display.NewOptionsArgs{}
 
 	header := false
 
 	flag.BoolVar(&header, "header", false, "Show column titles")
-	flag.BoolVar(&showBytes, "c", false, "Show the character count")
-	flag.BoolVar(&showWords, "w", false, "Show the word count")
-	flag.BoolVar(&showLines, "l", false, "Show the line count")
+	flag.BoolVar(&args.ShowBytes, "c", false, "Show the character count")
+	flag.BoolVar(&args.ShowWords, "w", false, "Show the word count")
+	flag.BoolVar(&args.ShowLines, "l", false, "Show the line count")
 
 	flag.Parse()
 
-	opts := display.NewOptions(showBytes, showWords, showLines)
+	opts := display.NewOptions(args)
 
 	log.SetFlags(0)
 
