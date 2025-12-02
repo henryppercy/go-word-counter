@@ -13,15 +13,15 @@ import (
 )
 
 type Counts struct {
-	Bytes int
-	Words int
-	Lines int
+	bytes int
+	words int
+	lines int
 }
 
 func (c Counts) Add(other Counts) Counts {
-	c.Lines += other.Lines
-	c.Words += other.Words
-	c.Bytes += other.Bytes
+	c.lines += other.lines
+	c.words += other.words
+	c.bytes += other.bytes
 	return c
 }
 
@@ -29,15 +29,15 @@ func (c Counts) Print(w io.Writer, opts display.Options, suffixes ...string) {
 	stats := []string{}
 
 	if opts.ShouldShowLines() {
-		stats = append(stats, strconv.Itoa(c.Lines))
+		stats = append(stats, strconv.Itoa(c.lines))
 	}
 
 	if opts.ShouldShowWords() {
-		stats = append(stats, strconv.Itoa(c.Words))
+		stats = append(stats, strconv.Itoa(c.words))
 	}
 
 	if opts.ShouldShowBytes() {
-		stats = append(stats, strconv.Itoa(c.Bytes))
+		stats = append(stats, strconv.Itoa(c.bytes))
 	}
 
 	line := strings.Join(stats, "\t") + "\t"
@@ -64,15 +64,15 @@ func GetCount(f io.Reader) Counts {
 			break
 		}
 
-		res.Bytes += size
+		res.bytes += size
 		if r == '\n' {
-			res.Lines++
+			res.lines++
 		}
 
 		isSpace := unicode.IsSpace(r)
 
 		if !isSpace && !isInsideWord {
-			res.Words++
+			res.words++
 		}
 
 		isInsideWord = !isSpace
