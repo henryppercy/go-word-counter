@@ -13,6 +13,11 @@ import (
 	"github.com/henryppercy/counter/display"
 )
 
+type FileCountsResults struct {
+	counts   counter.Counts
+	fileName string
+}
+
 func main() {
 	args := display.NewOptionsArgs{}
 
@@ -59,11 +64,12 @@ func main() {
 	wg := sync.WaitGroup{}
 	wg.Add(len(fileNames))
 
-	m := sync.Mutex{}
+	ch := make(chan FileCountsResults)
 
 	for _, f := range fileNames {
 		go func() {
 			defer wg.Done()
+
 			counts, err := counter.CountFile(f)
 
 			if err != nil {
@@ -72,15 +78,22 @@ func main() {
 				return
 			}
 
-			m.Lock()
-			defer m.Unlock()
-
-			totals = totals.Add(counts)
-			counts.Print(wr, opts, f)
+			ch <- FileCountsResults{
+				counts: counts,
+				fileName: f,
+			}
 		}()
 	}
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	for res := range ch {
+		totals = totals.Add(res.counts)
+		res.counts.Print(wr, opts, res.fileName)
+	}
 
 	if len(fileNames) == 0 {
 		counts := counter.GetCount(os.Stdin)
