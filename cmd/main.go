@@ -62,31 +62,17 @@ func main() {
 		fmt.Fprintln(wr, line)
 	}
 
-	ch, chErr := CountFiles(fileNames)
+	ch := CountFiles(fileNames)
 
-	for {
-		select {
-		case res, open := <-ch:
-			if !open {
-				ch = nil
-				break
-			}
-
-			totals = totals.Add(res.counts)
-			res.counts.Print(wr, opts, res.fileName)
-		case err, open := <-chErr:
-			if !open {
-				chErr = nil
-				break
-			}
-
+	for res := range ch {
+		if res.err != nil {
 			didError = true
-			fmt.Fprintln(os.Stderr, "counter:", err)
+			fmt.Fprintln(os.Stderr, "counter:", res.err)
+			continue
 		}
 
-		if ch == nil || chErr == nil {
-			break
-		}
+		totals = totals.Add(res.counts)
+		res.counts.Print(wr, opts, res.fileName)
 	}
 
 	if len(fileNames) == 0 {
@@ -104,9 +90,8 @@ func main() {
 	}
 }
 
-func CountFiles(filenames []string) (<-chan FileCountsResults, <-chan error) {
+func CountFiles(filenames []string) <-chan FileCountsResults {
 	ch := make(chan FileCountsResults)
-	chErr := make(chan error)
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(filenames))
@@ -116,10 +101,6 @@ func CountFiles(filenames []string) (<-chan FileCountsResults, <-chan error) {
 			defer wg.Done()
 
 			res, err := counter.CountFile(filename)
-			if err != nil {
-				chErr <- err
-				return
-			}
 
 			ch <- FileCountsResults{
 				counts:   res,
@@ -132,8 +113,7 @@ func CountFiles(filenames []string) (<-chan FileCountsResults, <-chan error) {
 	go func() {
 		wg.Wait()
 		close(ch)
-		close(chErr)
 	}()
 
-	return ch, chErr
+	return ch
 }
