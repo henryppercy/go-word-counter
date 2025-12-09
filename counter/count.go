@@ -81,7 +81,7 @@ func GetCountSinglePass(f io.Reader) Counts {
 	return res
 }
 
-func GetCounts(r io.Reader) Counts {
+func GetCount(r io.Reader) Counts {
 	bytesReader, bytesWriter := io.Pipe()
 	wordsReader, wordsWriter := io.Pipe()
 	linesReader, linesWriter := io.Pipe()
@@ -130,7 +130,7 @@ func CountFile(filename string) (Counts, error) {
 	}
 	defer file.Close()
 
-	counts := GetCounts(file)
+	counts := GetCount(file)
 
 	return counts, nil
 }
