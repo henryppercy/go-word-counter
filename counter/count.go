@@ -81,6 +81,46 @@ func GetCount(f io.Reader) Counts {
 	return res
 }
 
+func GetCounts(r io.Reader) Counts {
+	p1r, p1w := io.Pipe()
+	p2r, p2w := io.Pipe()
+
+	bytesReader := io.TeeReader(r, p1w)
+	wordsReader := io.TeeReader(p1r, p2w)
+	linesReader := p2r
+
+	chBytes := make(chan int)
+	chWords := make(chan int)
+	chLines := make(chan int)
+
+	go func(){
+		defer p1w.Close()
+		defer close(chBytes)
+		chBytes <- CountBytes(bytesReader)
+	}()
+
+	go func(){
+		defer p2w.Close()
+		defer close(chWords)
+		chWords <- CountWords(wordsReader)
+	}()
+
+	go func(){
+		defer close(chLines)
+		chLines <- CountLines(linesReader)
+	}()
+
+	byteCount := <- chBytes
+	wordCount := <- chWords 
+	lineCount := <- chLines
+	
+	return Counts{
+		bytes: byteCount,
+		words: wordCount,
+		lines: lineCount,
+	}
+}
+
 func CountFile(filename string) (Counts, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -88,7 +128,7 @@ func CountFile(filename string) (Counts, error) {
 	}
 	defer file.Close()
 
-	counts := GetCount(file)
+	counts := GetCounts(file)
 
 	return counts, nil
 }
