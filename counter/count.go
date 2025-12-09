@@ -52,7 +52,7 @@ func (c Counts) Print(w io.Writer, opts display.Options, suffixes ...string) {
 	fmt.Fprint(w, "\n")
 }
 
-func GetCount(f io.Reader) Counts {
+func GetCountSinglePass(f io.Reader) Counts {
 	res := Counts{}
 
 	isInsideWord := false
@@ -82,25 +82,22 @@ func GetCount(f io.Reader) Counts {
 }
 
 func GetCounts(r io.Reader) Counts {
-	p1r, p1w := io.Pipe()
-	p2r, p2w := io.Pipe()
+	bytesReader, bytesWriter := io.Pipe()
+	wordsReader, wordsWriter := io.Pipe()
+	linesReader, linesWriter := io.Pipe()
 
-	bytesReader := io.TeeReader(r, p1w)
-	wordsReader := io.TeeReader(p1r, p2w)
-	linesReader := p2r
+	w := io.MultiWriter(bytesWriter, wordsWriter, linesWriter)
 
 	chBytes := make(chan int)
 	chWords := make(chan int)
 	chLines := make(chan int)
 
 	go func(){
-		defer p1w.Close()
 		defer close(chBytes)
 		chBytes <- CountBytes(bytesReader)
 	}()
 
 	go func(){
-		defer p2w.Close()
 		defer close(chWords)
 		chWords <- CountWords(wordsReader)
 	}()
@@ -109,6 +106,11 @@ func GetCounts(r io.Reader) Counts {
 		defer close(chLines)
 		chLines <- CountLines(linesReader)
 	}()
+
+	io.Copy(w, r)
+	bytesWriter.Close()
+	wordsWriter.Close()
+	linesWriter.Close()
 
 	byteCount := <- chBytes
 	wordCount := <- chWords 
