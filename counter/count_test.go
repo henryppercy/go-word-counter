@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/henryppercy/counter/display"
+	"github.com/henryppercy/counter/test/assert"
 )
 
 func TestCountWords(t *testing.T) {
@@ -61,10 +62,7 @@ func TestCountWords(t *testing.T) {
 			r := strings.NewReader(tc.input)
 			gives := GetCount(r).words
 
-			if gives != tc.wants {
-				t.Logf("expected: %d got: %d", tc.wants, gives)
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, gives)
 		})
 	}
 }
@@ -112,10 +110,7 @@ func TestCountLines(t *testing.T) {
 			r := strings.NewReader(tc.input)
 			gives := GetCount(r).lines
 
-			if gives != tc.wants {
-				t.Logf("expected: %d got: %d", tc.wants, gives)
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, gives)
 		})
 	}
 }
@@ -163,10 +158,7 @@ func TestCountBytes(t *testing.T) {
 			r := strings.NewReader(tc.input)
 			gives := GetCount(r).bytes
 
-			if gives != tc.wants {
-				t.Logf("expected: %d got: %d", tc.wants, gives)
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, gives)
 		})
 	}
 }
@@ -193,10 +185,7 @@ func TestGetCounts(t *testing.T) {
 			r := strings.NewReader(tc.input)
 			gives := GetCount(r)
 
-			if gives != tc.wants {
-				t.Logf("expected: %d got: %d", tc.wants, gives)
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, gives)
 		})
 	}
 }
@@ -316,10 +305,7 @@ func TestPrintCount(t *testing.T) {
 
 			tc.input.counts.Print(buffer, display.NewOptions(tc.input.opts), tc.input.filename...)
 
-			if buffer.String() != tc.wants {
-				t.Logf("expected: %v got: %v", tc.wants, buffer.String())
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, buffer.String())
 		})
 	}
 }
@@ -359,12 +345,9 @@ func TestAddCount(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			totals := tc.input.counts
-			res := totals.Add(tc.input.other)
+			gives := totals.Add(tc.input.other)
 
-			if res != tc.wants {
-				t.Logf("expected: %v got: %v", tc.wants, res)
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, gives)
 		})
 	}
 }

@@ -3,13 +3,13 @@ package e2e
 import (
 	"bytes"
 	"testing"
+
+	"github.com/henryppercy/counter/test/assert"
 )
 
 func TestNoExist(t *testing.T) {
 	cmd, err := getCommand("no_exist.txt")
-	if err != nil {
-		t.Fatal("failed to get pwd: ", err)
-	}
+	assert.Error(t, err, "failed to get command")
 
 	stderr := &bytes.Buffer{}
 	stdout := &bytes.Buffer{}
@@ -30,13 +30,6 @@ func TestNoExist(t *testing.T) {
 		t.Fail()
 	}
 
-	if stderr.String() != wantsStderr {
-		t.Log("stderr is not correct: wanted: ", wantsStderr, "got: ", stderr.String())
-		t.Fail()
-	}
-
-	if stdout.String() != wantsStdout {
-		t.Log("stdout is not correct: wanted: ", wantsStdout, "got: ", stdout.String())
-		t.Fail()
-	}
+	assert.Equal(t, wantsStderr, stderr.String(), "stderr doesn't match")
+	assert.Equal(t, wantsStdout, stdout.String(), "stdout doesn't match")
 }

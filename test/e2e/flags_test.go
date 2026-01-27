@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/henryppercy/counter/test/assert"
 )
 
 func TestFlags(t *testing.T) {
@@ -41,23 +43,15 @@ func TestFlags(t *testing.T) {
 			inputs := append(tc.flags, file.Name())
 
 			cmd, err := getCommand(inputs...)
-			if err != nil {
-				t.Log("failed to get command:", err)
-				t.Fail()
-			}
+			assert.Error(t, err, "failed to get command")
 
 			stdout := &bytes.Buffer{}
 			cmd.Stdout = stdout
 
-			if err = cmd.Run(); err != nil {
-				t.Log("failed to run command:", err)
-				t.Fail()
-			}
+			err = cmd.Run()
+			assert.Error(t, err, "failed to run command")
 
-			if tc.wants != stdout.String() {
-				t.Logf("expected: %s got: %s", tc.wants, stdout.String())
-				t.Fail()
-			}
+			assert.Equal(t, tc.wants, stdout.String())
 		})
 	}
 }

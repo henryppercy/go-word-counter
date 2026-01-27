@@ -7,41 +7,34 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/henryppercy/counter/test/assert"
 )
 
 func TestMultipleFilesDeterministic(t *testing.T) {
 	fileA, err := createFile("one two three four five\n")
-	if err != nil {
-		t.Fatal("failed to create fileA:", err)
-	}
+	assert.Error(t, err, "failed to create fileA")
 
 	defer os.Remove(fileA.Name())
 
 	fileB, err := createFile("foo bar baz\n\n")
-	if err != nil {
-		t.Fatal("failed to create fileB:", err)
-	}
+	assert.Error(t, err, "failed to create fileB")
 
 	defer os.Remove(fileB.Name())
 
 	fileC, err := createFile("")
-	if err != nil {
-		t.Fatal("failed to create fileC:", err)
-	}
+	assert.Error(t, err, "failed to create fileC")
 
 	defer os.Remove(fileC.Name())
 
 	cmd, err := getCommand(fileA.Name(), fileB.Name(), fileC.Name())
-	if err != nil {
-		t.Fatal("could not create command:", err)
-	}
+	assert.Error(t, err, "failed to create command")
 
 	stdout := &bytes.Buffer{}
 	cmd.Stdout = stdout
 
-	if err := cmd.Run(); err != nil {
-		t.Fatal("failed to run command:", err)
-	}
+	err = cmd.Run()
+	assert.Error(t, err, "failed to run command")
 
 	wants := fmt.Sprintf(` 1 5 24 %s
  2 3 13 %s
@@ -49,45 +42,33 @@ func TestMultipleFilesDeterministic(t *testing.T) {
  3 8 37 total
 `, fileA.Name(), fileB.Name(), fileC.Name())
 
-	if wants != stdout.String() {
-		t.Logf("expected: %s got: %s", wants, stdout.String())
-		t.Fail()
-	}
+	assert.Equal(t, wants, stdout.String())
 }
 
 func TestMultipleFilesNonDeterministic(t *testing.T) {
 	fileA, err := createFile("one two three four five\n")
-	if err != nil {
-		t.Fatal("failed to create fileA:", err)
-	}
+	assert.Error(t, err, "failed to create fileA")
 
 	defer os.Remove(fileA.Name())
 
 	fileB, err := createFile("foo bar baz\n\n")
-	if err != nil {
-		t.Fatal("failed to create fileB:", err)
-	}
+	assert.Error(t, err, "failed to create fileB")
 
 	defer os.Remove(fileB.Name())
 
 	fileC, err := createFile("")
-	if err != nil {
-		t.Fatal("failed to create fileC:", err)
-	}
+	assert.Error(t, err, "failed to create fileC")
 
 	defer os.Remove(fileC.Name())
 
 	cmd, err := getCommand(fileA.Name(), fileB.Name(), fileC.Name())
-	if err != nil {
-		t.Fatal("could not create command:", err)
-	}
+	assert.Error(t, err, "failed to get command")
 
 	stdout := &bytes.Buffer{}
 	cmd.Stdout = stdout
 
-	if err := cmd.Run(); err != nil {
-		t.Fatal("failed to run command:", err)
-	}
+	err = cmd.Run()
+	assert.Error(t, err, "failed to run command")
 
 	wants := map[string]string{
 		fileA.Name(): fmt.Sprintf(" 1 5 24 %s", fileA.Name()),
@@ -119,10 +100,7 @@ func TestMultipleFilesNonDeterministic(t *testing.T) {
 
 		checkedWants++
 
-		if line != lineWants {
-			t.Logf("line does not match: got: %s wants: %s", line, lineWants)
-			t.Fail()
-		}
+		assert.Equal(t, lineWants, line)
 	}
 
 	if checkedWants != len(wants) {
