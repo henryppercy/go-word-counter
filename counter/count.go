@@ -92,17 +92,17 @@ func GetCount(r io.Reader) Counts {
 	chWords := make(chan int)
 	chLines := make(chan int)
 
-	go func(){
+	go func() {
 		defer close(chBytes)
 		chBytes <- CountBytes(bytesReader)
 	}()
 
-	go func(){
+	go func() {
 		defer close(chWords)
 		chWords <- CountWords(wordsReader)
 	}()
 
-	go func(){
+	go func() {
 		defer close(chLines)
 		chLines <- CountLines(linesReader)
 	}()
@@ -112,10 +112,10 @@ func GetCount(r io.Reader) Counts {
 	wordsWriter.Close()
 	linesWriter.Close()
 
-	byteCount := <- chBytes
-	wordCount := <- chWords 
-	lineCount := <- chLines
-	
+	byteCount := <-chBytes
+	wordCount := <-chWords
+	lineCount := <-chLines
+
 	return Counts{
 		bytes: byteCount,
 		words: wordCount,
