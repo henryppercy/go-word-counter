@@ -17,6 +17,7 @@ type FileCountsResults struct {
 	counts   counter.Counts
 	fileName string
 	err      error
+	index    int
 }
 
 func main() {
@@ -64,7 +65,13 @@ func main() {
 
 	ch := CountFiles(fileNames)
 
+	results := make([]FileCountsResults, len(fileNames))
+
 	for res := range ch {
+		results[res.index] = res
+	}
+
+	for _, res := range results {
 		if res.err != nil {
 			didError = true
 			fmt.Fprintln(os.Stderr, "counter:", res.err)
@@ -96,7 +103,7 @@ func CountFiles(filenames []string) <-chan FileCountsResults {
 	wg := sync.WaitGroup{}
 	wg.Add(len(filenames))
 
-	for _, filename := range filenames {
+	for i, filename := range filenames {
 		go func() {
 			defer wg.Done()
 
@@ -106,6 +113,7 @@ func CountFiles(filenames []string) <-chan FileCountsResults {
 				counts:   res,
 				fileName: filename,
 				err:      err,
+				index:    i,
 			}
 		}()
 	}
